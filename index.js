@@ -17,26 +17,45 @@ app.options("*", cors());
 
 app.post("/api/create-pixel", async (req, res) => {
   try {
-    var graphql = JSON.stringify({
-      query: "mutation {\n  webPixelCreate(webPixel: { settings: \"{\\\"accountID\\\":\\\"234\\\"}\" }) {\n    userErrors {\n      code\n      field\n      message\n    }\n    webPixel {\n      settings\n      id\n    }\n  }\n}\n",
-      variables: {}
-    })
 
-    const response = await fetch('https://live2-ai.myshopify.com/admin/api/2021-10/graphql.json', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Shopify-Access-Token': 'shpua_f308717044fbcfef794487f58c7dae45',
-      },
-      body: graphql,
+    let data = JSON.stringify({
+      query: `mutation {
+      webPixelCreate(webPixel: { settings: "" }) {
+        userErrors {
+          code
+          field
+          message
+        }
+        webPixel {
+          settings
+          id
+        }
+      }
+    }`,
+      variables: {}
     });
 
-    const responseData = await response.json();
-    console.log(responseData, "App Pixel Api ")
-    res.status(200).json({ message: 'Pixel Api' });
-    // const products = response.data.data.products.edges;
-    // console.log(products, "Prod");
-    // res.json(products);
+    let config = {
+      method: 'post',
+      maxBodyLength: Infinity,
+      url: 'https://live2-ai.myshopify.com/admin/api/2024-04/graphql.json',
+      headers: {
+        'X-Shopify-Access-Token': 'shpua_f308717044fbcfef794487f58c7dae45',
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..6H3uPAk34AIWTUX9.dXiY_p_xFbpmESmqAqKBd6qS1msIrw67YBFtdjtawO12AF0r9HD6rcMHElAheDamGalo7M2mF1DouYwkpDvSezXQXUSGeFrFOhQXSmsVPYB8hwFbIrPoO22OdoCyjZ54eha2Um0NZkLxgatdiq-rKniQauG4ajsPK9oyrFqnluZHsOmXzzvlTKGwGkgLrVJBTfbdWWygylRXGhM5IijTXLwcCvOI1xjVUA.d1a3pM4T0n21XqhWBI1XgA'
+      },
+      data: data
+    };
+
+    axios.request(config)
+      .then((response) => {
+        console.log(JSON.stringify(response.data));
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+    res.status(200).json({ message: 'Pixel Api' })
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Failed to run Pixel" });

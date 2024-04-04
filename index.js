@@ -49,12 +49,12 @@ app.post("/api/create-pixel", async (req, res) => {
 
     axios.request(config)
       .then((response) => {
-        console.log(JSON.stringify(response.data));
+        res.status(200).json(response.data)
       })
       .catch((error) => {
         console.log(error);
       });
-    res.status(200).json({ message: 'Pixel Api' })
+    // res.status(200).json({ message: 'Pixel Api' })
 
   } catch (error) {
     console.error(error);

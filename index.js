@@ -15,41 +15,31 @@ app.use(express.json());
 
 app.options("*", cors());
 
-app.post("/api/fetch-products", async (req, res) => {
-  const { shop_domain, access_token } = req.body;
-  if (!shop_domain || !access_token) {
-    return res.status(400).json({ error: "missing body parameters" });
-  }
+app.post("/api/create-pixel", async (req, res) => {
   try {
-    const query = `
-      {
-        products(first: 10) {
-          edges {
-            node {
-              title
-              id
-            }
-          }
-        }
-      }
-    `;
+    var graphql = JSON.stringify({
+      query: "mutation {\n  webPixelCreate(webPixel: { settings: \"{\\\"accountID\\\":\\\"234\\\"}\" }) {\n    userErrors {\n      code\n      field\n      message\n    }\n    webPixel {\n      settings\n      id\n    }\n  }\n}\n",
+      variables: {}
+    })
 
-    const response = await axios.post(
-      `https://${shop_domain}/admin/api/2023-07/graphql.json`,
-      { query },
-      {
-        headers: {
-          "X-Shopify-Access-Token": access_token,
-        },
-      }
-    );
+    const response = await fetch('https://live2-ai.myshopify.com/admin/api/2021-10/graphql.json', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Shopify-Access-Token': 'shpua_f308717044fbcfef794487f58c7dae45',
+      },
+      body: graphql,
+    });
 
-    const products = response.data.data.products.edges;
-    console.log(products, "Prod");
-    res.json(products);
+    const responseData = await response.json();
+    console.log(responseData, "App Pixel Api ")
+    res.status(200).json({ message: 'Pixel Api' });
+    // const products = response.data.data.products.edges;
+    // console.log(products, "Prod");
+    // res.json(products);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Failed to fetch products" });
+    res.status(500).json({ error: "Failed to run Pixel" });
   }
 });
 
